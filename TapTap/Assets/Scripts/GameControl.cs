@@ -8,6 +8,7 @@ public class GameControl : MonoBehaviour {
 
 	public static GameControl instance;
 	public bool gameOver = false;
+	public GameObject gameOverPanel;
 	public Text scoreText;
 	public int score = 0;
 	public int highScore = 0;
@@ -53,18 +54,20 @@ public class GameControl : MonoBehaviour {
 	void Update () {
 		scoreText.text = score.ToString ();
 		if (!gameOver) {
-			if (Input.GetTouch (0).phase == TouchPhase.Began) {
-				Ray mouseRay = GenerateMouseRay (Input.GetTouch (0).position);
-				RaycastHit hit;
-				if (Physics.Raycast (mouseRay.origin, mouseRay.direction, out hit)) {
-					anObject = hit.transform.gameObject;
-					if (anObject.name != "ResetBall") {
-						PlayerScored ();
-						RespawnBall (anObject);
+			if (Input.touchCount > 0) {
+				if (Input.GetTouch (0).phase == TouchPhase.Began) {
+					Ray mouseRay = GenerateMouseRay (Input.GetTouch (0).position);
+					RaycastHit hit;
+					if (Physics.Raycast (mouseRay.origin, mouseRay.direction, out hit)) {
+						anObject = hit.transform.gameObject;
+						if (anObject.name != "ResetBall") {
+							PlayerScored ();
+							RespawnBall (anObject);
+						}
 					}
+				} else if (Input.GetTouch (0).phase == TouchPhase.Ended && anObject) {
+					anObject = null;
 				}
-			} else if (Input.GetTouch (0).phase == TouchPhase.Ended && anObject) {
-				anObject = null;
 			}
 		}
 	}
@@ -79,6 +82,7 @@ public class GameControl : MonoBehaviour {
 
 	public void PlayerLost(){
 		gameOver = true;
+		gameOverPanel.SetActive (true);
 	}
 
 	private void RespawnBall(GameObject theBall){
